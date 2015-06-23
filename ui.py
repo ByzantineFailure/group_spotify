@@ -8,6 +8,7 @@ class CurseUI:
 		screen_height = curses.LINES - 1
 		screen_width = curses.COLS - 1
 		stdscr.border(1)
+		self.screen = stdscr
 
 		window_width = screen_width - 2
 		
@@ -23,14 +24,14 @@ class CurseUI:
 		log_start_x = 1
 		log_start_y = other_users_start_y + other_users_height
 
-		self.current_user_window = curses.newwin(current_user_height, window_width, current_user_start_y, current_user_start_x)
-		self.other_users_window = curses.newwin(other_users_height, window_width, other_users_start_y, other_users_start_x)
-		self.log_window = curses.newwin(log_height, window_width, log_start_y, log_start_x)
+		self.current_user_window = stdscr.subwin(current_user_height, window_width, current_user_start_y, current_user_start_x)
+		self.other_users_window = stdscr.subwin(other_users_height, window_width, other_users_start_y, other_users_start_x)
+		self.log_window = stdscr.subwin(log_start_y, log_start_x)
 	
-	def get_log_height():
+	def get_log_height(self):
 		return self.log_height
 
-	def get_max_users_height():
+	def get_max_users_height(self):
 		return max_users_height
 
 	def draw_ui(self, current_user_name, current_user_song, other_users, other_users_start_index, 
@@ -44,26 +45,29 @@ class CurseUI:
 
 	def __draw_current_user_info(self, user_name, user_song):
 		self.current_user_window.clear()
-		self.current_user_window.addstr(1, 1, "YOUR NAME: {}     YOUR SONG: {}".format(user_name, user_song))
+		self.current_user_window.addstr(0, 1, "YOUR NAME: {}     YOUR SONG: {}".format(user_name, user_song))
 		self.current_user_window.refresh()
 
 #Assumes users_start_index + max_users_height <= users.length - 1
 	def __draw_other_user_list(self, users, users_start_index):
 		self.other_users_window.clear()
-		self.other_users_window.addstr(0, 0, "ACTIVE USERS:")
+		self.other_users_window.border(other_users_border_width)
+		self.other_users_window.addstr(1, 1, "ACTIVE USERS:")
 
-		if users.length > 0:
+		if len(users) > 0:
 			current_user_index = 0
-			while current_user_index + user_start_index < users.length - 1 and current_user_index < max_users_height:
+			while current_user_index + users_start_index < len(users) - 1 and current_user_index < max_users_height:
 				current_user = users[current_user_index + users_start_index];
-				self.other_users_window.addstr(1 + current_user_index, 0, "{} - {}".format(current_user.name, current_user.song);
+				self.other_users_window.addstr(2 + current_user_index, 1, "{} - {}".format(current_user.name, current_user.song));
+				current_user_index += 1
 				
 		else:
 			self.other_users_window.addstr(1, 0, "NO OTHER USERS YET")
 		self.other_users_window.refresh()
 
 	def __draw_log_window(self, log_info):
-		log_window.clear()
+		self.log_window.clear()
 		for idx, val in enumerate(log_info):
-			self.log_window.addstr(idx, 0, "{}".val)
+			self.log_window.addstr(idx, 0, "{}".format(val))
+		self.log_window.refresh()
 
