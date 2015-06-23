@@ -14,6 +14,7 @@ Mostly I just wanted to play around with curses, redis, and websockets.
 ###Client
 Just run group_spotify.py
 ###Server
+You'll need a redis instance.  Once you have that:
 ```
 pip install redis-py
 sudo pip install asyncio
