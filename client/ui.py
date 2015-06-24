@@ -52,13 +52,16 @@ class CurseUI:
         self.other_users_window.clear()
         self.other_users_window.border(other_users_border_width)
         self.other_users_window.addstr(1, 1, "ACTIVE USERS")
-
+        ''' 
         if len(users) > 0:
             for idx,user in enumerate(users):
+                #self.other_users_window.addstr(idx + 2, 2, "THING")
                 self.other_users_window.addstr(idx + 2, 2, "{}: {}".format(user.name, user.song));
                 
         else:
             self.other_users_window.addstr(1, 0, "NO OTHER USERS YET")
+        '''
+        self.other_users_window.addstr(1, 0, "NO OTHER USERS YET")
         self.other_users_window.refresh()
 
     def __draw_log_window(self, log_info):

@@ -1,44 +1,71 @@
-from autobahn.asyncio.websocket import WebSocketServerProtocol, \
-		WebSocketServerFactory
+import tornado.web
+import tornado.websocket
+import tornado.ioloop
+import tornado.httpserver
+import json
 
-class MyServerProtocol(WebSocketServerProtocol):
-	def onConnect(self, request):
-		print("Client connecting: {0}".format(request.peer))
-	
-	def onOpen(self):
-		print("Socket connection open")
-	
-	def onMessage(self, payload, isBinary):
-		if isBinary:
-			print("Binary message received: {0} bytes".format(len(payload)))
-		else:
-			print("Text message received: {0}".format(payload.decode('utf-8')))
+user_state = []
+clients = []
 
-		self.sendMessage(payload, isBinary)
+class WebSocketHandler(tornado.websocket.WebSocketHandler):
+    def open(self):
+        print("New client connected.") 
 
-	def onClose(self, wasClean, code, reason):
-		print("WebSocket connection closed: {0}".format(reason))
+    def on_message(self, message):
+        mdict = json.loads(message)
+        
+        if mdict['type'] == "UPDATE_USER":
+            remove_user = [u for u in user_state if u['name'] == mdict['user']['name']][0]
+            user_state.remove(remove_user)
+            user_state.append(mdict['user'])
+            for client in clients:
+                client['socket'].write_message(message)
+
+        elif mdict['type'] == "RECV_CLIENT":
+            clients.append({ "name" : mdict['name'], "socket" : self})
+        else: 
+            self.write_message(write_message(u"{\"type\":\"SUCCESS_RESPONSE\"}"))
+
+    def on_close(self):
+        closing_client = [cu for cu in clients if cu['socket'] == self][0]
+        closing_user = [u for u in user_state if closing_client['name'] == u['name']][0]
+        clients.remove(closing_client)
+        user_state.remove(closing_user)
+        
+        message = json.dumps({"type": "USER_DISCONNECT", "name":closing_user['name']})
+        for client in clients:
+            client['socket'].write_message(message)
+
+        print("Client disconnected")
+
+class StateHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(json.dumps(user_state))
+
+class RegisterHandler(tornado.web.RequestHandler):
+    def post(self):
+        data = self.request.body
+        print("Received registration: {}".format(data))
+        mdict = json.loads(data.decode("UTF-8"))
+        user_state.append(mdict)
+        
+        update_dict = {'type':"UPDATE_USER", 'user': json.loads(data.decode("UTF-8"))}
+
+        for client in [c for c in clients if c['name'] != mdict['name']]:
+            client['socket'].write_message(json.dumps(update_dict))
+
+class Server(tornado.web.Application):
+    def __init__(self):
+        handlers = [
+            (r'/websocket', WebSocketHandler),
+            (r'/state', StateHandler),
+            (r'/register', RegisterHandler)
+        ]
+
+        tornado.web.Application.__init__(self, handlers)
 
 if __name__ == '__main__':
-	try:
-		import asyncio
-	except ImportError:
-		import trollius as asyncio
-	
-	factory = WebSocketServerFactory("ws://localhost:9000", debug=False)
-	factory.protocol = MyServerProtocol
-
-	loop = asyncio.get_event_loop()
-	coro = loop.create_server(factory, '0.0.0.0', 9000)
-	server = loop.run_until_complete(coro)
-
-	try:
-		loop.run_forever()
-	except KeyboardInterrupt:
-		pass
-	finally:
-		server.close()
-		loop.close()
-
-
-
+    ws_app = Server()
+    server = tornado.httpserver.HTTPServer(ws_app)
+    server.listen(9000)
+    tornado.ioloop.IOLoop.instance().start()

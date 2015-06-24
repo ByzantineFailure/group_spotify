@@ -10,6 +10,8 @@ Initially written because I was informed that I had a day to do basically whatev
 
 Mostly I just wanted to play around with curses, redis, and websockets.
 
+Much of the server code is almost directly cribbed from: https://gist.github.com/Lawouach/7698023
+
 #Installation
 ###Client
 Just run group_spotify.py
@@ -17,8 +19,8 @@ Just run group_spotify.py
 You'll need a redis instance.  Once you have that:
 ```
 pip install redis-py
-sudo pip install asyncio
-sudo pip install autobahn
+sudo pip3 install cherrypy
+sudo pip3 install ws4py
 ```
 Then run server.py
 
