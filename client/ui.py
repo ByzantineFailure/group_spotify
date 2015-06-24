@@ -47,21 +47,17 @@ class CurseUI:
         self.current_user_window.addstr(0, 1, "YOUR NAME: {}     YOUR SONG: {}".format(user_name, user_song))
         self.current_user_window.refresh()
 
-#Assumes users_start_index + max_users_height <= users.length - 1
     def __draw_other_user_list(self, users):
         self.other_users_window.clear()
         self.other_users_window.border(other_users_border_width)
         self.other_users_window.addstr(1, 1, "ACTIVE USERS")
-        ''' 
+        
         if len(users) > 0:
             for idx,user in enumerate(users):
-                #self.other_users_window.addstr(idx + 2, 2, "THING")
-                self.other_users_window.addstr(idx + 2, 2, "{}: {}".format(user.name, user.song));
-                
+                self.other_users_window.addstr(idx + 2, 2, "{}: {} - {}".format(user.name, user.song, user.artist));
         else:
             self.other_users_window.addstr(1, 0, "NO OTHER USERS YET")
-        '''
-        self.other_users_window.addstr(1, 0, "NO OTHER USERS YET")
+        
         self.other_users_window.refresh()
 
     def __draw_log_window(self, log_info):

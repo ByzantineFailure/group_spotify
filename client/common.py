@@ -23,8 +23,6 @@ class User:
         self.artist = artist
         self.playing = playing
     
-    def from_dict(dict):
-
     def get_song_info(self):
         return "{} - {}".format(self.song, self.artist)
 
@@ -64,6 +62,7 @@ class ApplicationState:
         
         if len(matching_users) < 1:
            log_entry = "User {} connected!".format(user.name) 
+           self.other_users.append(user)
            self.add_log_entry(log_entry)
         else:
             if matching_users[0].playing and not user.playing:
@@ -74,11 +73,13 @@ class ApplicationState:
             if matching_users[0].song != user.song or matching_users[0].artist != user.artist:
                 self.add_log_entry("User {} now listening to \"{}\"".format(user.name, user.get_song_info()))
         
+        self.add_log_entry("Length of users is now {}".format(len(self.other_users)))
         self.update_other_users = True
     
     def remove_user(self, name):
         self.other_users = [u for u in self.other_users if u.name != name] 
         self.add_log_entry("User {} disconnected".format(name))
+        self.add_log_entry("Length of users is now {}".format(len(self.other_users)))
         self.update_other_users = True
 
     def add_log_entry(self, entry):

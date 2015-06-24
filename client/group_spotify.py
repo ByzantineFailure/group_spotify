@@ -20,14 +20,14 @@ def other_users_slice_length(other_users, max_users_height):
 
 def main(stdscr):
     user_song = "THE THING"
-    #ui = CurseUI(stdscr)
-    #log_max = ui.get_log_height()
-    #max_users = ui.get_max_users_height()
-    log_max = 25
-    max_users = 4
+    ui = CurseUI(stdscr)
+    log_max = ui.get_log_height()
+    max_users = ui.get_max_users_height()
+    #log_max = 25
+    #max_users = 4
     state = ApplicationState(user_name, log_max)
         
-    #ui.draw_ui(user_name, user_song, state.other_users, state.log, True, True, True)
+    ui.draw_ui(user_name, user_song, state.other_users, state.log, True, True, True)
     
     sender = DataSender(state)
     sender.get_state()
@@ -46,15 +46,15 @@ def main(stdscr):
         end_index = state.other_users_start_index + slice_length
         users_slice = state.other_users[state.other_users_start_index:end_index]    
         
-        #ui.draw_ui(state.current_user_name, state.current_user_song, users_slice, state.log,
-        #        state.update_current_user, state.update_other_users, state.update_log)
+        ui.draw_ui(state.current_user_name, state.current_user_song, users_slice, state.log,
+                state.update_current_user, state.update_other_users, state.update_log)
         
         state.reset_update_variables()
 
         state.lock.release()
-        print(state.__dict__)
-        input("")
+        #print(state.__dict__)
+        #input("")
 
 if __name__ == "__main__":
-    #wrapper(main)
-    main(None)
+    wrapper(main)
+    #main(None)

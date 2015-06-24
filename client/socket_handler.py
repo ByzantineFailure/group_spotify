@@ -39,7 +39,8 @@ class DataSender:
 
         self.state.lock.acquire()
         for user in response:
-            self.state.add_or_modify_user(User.from_dict(user))
+            updated_user = User(user['name'], user['song'], user['artist'], user['playing'])
+            self.state.add_or_modify_user(updated_user)
         self.state.lock.release()
 
     def __send_post(self, dictionary, endpoint):
