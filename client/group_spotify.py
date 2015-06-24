@@ -3,6 +3,7 @@ from ui import CurseUI
 from key_watcher import KeyWatcher
 from socket_handler import DataSender, DataReceiver
 from common import User, ApplicationState
+from spotify_watcher import SpotifyWatcher
 import threading
 import time
 import pprint
@@ -35,9 +36,13 @@ def main(stdscr):
 
     receiver = DataReceiver(state)
     receiver.start()
+    
+    spotify = SpotifyWatcher(state, sender)
+    spotify.start()
+
     watcher = KeyWatcher(stdscr, state, max_users)
     watcher.start()
-
+    
     while True:
         time.sleep(.1)
         state.lock.acquire()

@@ -28,7 +28,7 @@ class DataSender:
         self.state = state
     
     def update_user(self, user):
-        self.__send_message(MessageFactory.update_user(user)) 
+        self.__send_post({ "user": user.__dict__ }, 'update') 
     
     def register_self(self, user):
         self.__send_post(user.__dict__, 'register')
