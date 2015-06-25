@@ -1,7 +1,7 @@
 from curses import wrapper
 from ui import CurseUI
 from key_watcher import KeyWatcher
-from socket_handler import DataSender, DataReceiver
+from network import DataSender, DataReceiver
 from common import User, ApplicationState
 from spotify_watcher import SpotifyWatcher
 import threading
