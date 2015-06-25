@@ -24,6 +24,8 @@ Clean the code up.  That shit is a hot mess right now.
 
 Server and client configs
 
+Make the Applescript portion less of an egregious hack (runs through a shellscript then the client reads an output file)
+
 Some sort of tests or something
 
 Windows and Linux methods of getting Spotify info
