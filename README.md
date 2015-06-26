@@ -8,7 +8,7 @@ Not gonna work in windows because ncurses doesn't work in windows, and I'm too l
 
 Initially written because I was informed that I had a day to do basically whatever at work then the idea kind of took off in my head at home before the actual day came.
 
-Mostly I just wanted to play around with curses, redis, and websockets.
+Mostly I just wanted to play around with curses, redis, and websockets.  Redis didn't happen (unneded).
 
 #Installation
 ###Client
@@ -19,4 +19,17 @@ pip3 install tornado
 ```
 Then run server.py
 
-Server and client configs to probably come.  Probably.
+#TODO
+Clean the code up.  That shit is a hot mess right now.
+
+Server and client configs
+
+Make the Applescript portion less of an egregious hack (runs through a shellscript then the client reads an output file)
+
+Some sort of tests or something
+
+Windows and Linux methods of getting Spotify info
+
+Port the UI to Unicurses so it works under Windows as well
+
+Deploy this somewhere or something
