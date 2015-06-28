@@ -28,11 +28,13 @@ Clean the code up.  That shit is a hot mess right now.
 
 Server and client configs
 
-Make the Applescript portion less of an egregious hack (runs through a shellscript then the client reads an output file)
-
 Some sort of tests or something
 
-Windows and Linux methods of getting Spotify info
+Linux method of getting Spotify info
+
+Stabilize the network stuff to not fail in the event of the connection going down
+
+Stabilize the WindowsSpotifyScraper for the event of Spotify not being present
 
 Port the UI to Unicurses so it works under Windows as well
 
