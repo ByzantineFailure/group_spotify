@@ -12,7 +12,11 @@ Mostly I just wanted to play around with curses, redis, and websockets.  Redis d
 
 #Installation
 ###Client
-Just run group_spotify.py
+```
+pip3 install websocket-client
+```
+Then run group_spotify.py
+
 ###Server
 ```
 pip3 install tornado
