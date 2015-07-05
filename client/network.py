@@ -6,6 +6,9 @@ from common import User
 
 #websocket.enableTrace(True)
 
+def get_server_url(url, port):
+    return url + ":" + port
+
 class MessageFactory:
     def get_state():
         message = { 'type': 'GET_STATE' }
@@ -24,17 +27,21 @@ class MessageFactory:
         return json.dumps(message)
 
 class DataSender:
-    def __init__(self, state):
+    def __init__(self, state, config):
         self.state = state
-    
+        self.server_url = "http://" + get_server_url(config['server'], config['port'])
+        print(self.server_url)
+
     def update_user(self, user):
-        self.__send_post({ "user": user.__dict__ }, 'update') 
+        self.__send_post({ "user": user.__dict__ }, self.server_url, 'update') 
     
     def register_self(self, user):
-        self.__send_post(user.__dict__, 'register')
+        self.__send_post(user.__dict__, self.server_url, 'register')
     
     def get_state(self):
-        content = urllib.request.urlopen("http://localhost:9000/state").read().decode("UTF-8")
+        url = "{}/state".format(self.server_url)
+        print(url)
+        content = urllib.request.urlopen(url).read().decode("UTF-8")
         response = json.loads(content) 
 
         self.state.lock.acquire()
@@ -43,24 +50,32 @@ class DataSender:
             self.state.add_or_modify_user(updated_user)
         self.state.lock.release()
 
-    def __send_post(self, dictionary, endpoint):
+    def __send_post(self, dictionary, server_url, endpoint):
         post_data = json.dumps(dictionary).encode('utf-8')
-        req = urllib.request.Request("http://localhost:9000/{}".format(endpoint))
+        req = urllib.request.Request("{}/{}".format(self.server_url, endpoint))
         req.add_header('Content-Type', 'application/json;charset=utf-8')
         req.add_header('Content-Length', len(post_data))
         urllib.request.urlopen(req, post_data)
         
 class DataReceiver(threading.Thread):
-    def __init__(self, state):
+    def __init__(self, state, config):
         self.state = state
-        self.ws = websocket.create_connection("ws://localhost:9000/websocket")
+        self.websocket_url = "ws://" + get_server_url(config['server'], config['port']) + "/websocket"
+        print(self.websocket_url)
+        self.ws = websocket.create_connection(self.websocket_url)
         
         self.ws.send(MessageFactory.recv_client(state.current_user_name))
+        self.__stop = False
 
         threading.Thread.__init__(self)
+    
+    def stop(self):
+        self.__stop = True
 
     def run(self):
         while True:
+            if(self.__stop):
+                return
             message = self.ws.recv()
             print("message was: {}".format(message))
             mdict = json.loads(message)
@@ -90,14 +105,17 @@ class DataReceiver(threading.Thread):
 if __name__ == '__main__':
     print("Creating connections")
     
+    config_file = open("config.json")
+    config = json.loads(config_file.read())
+
     class dummy_state:
         def __init__(self):
             self.user_name = "DUMMY"
 
-    receiver = DataReceiver(dummy_state())
+    receiver = DataReceiver(dummy_state(), config)
     receiver.start()
     
-    sender = DataSender()
+    sender = DataSender(dummy_state(), config)
     
     while True:
         sender.send_message("Hello, world!")

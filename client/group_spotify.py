@@ -7,6 +7,12 @@ from spotify_watcher import SpotifyWatcher
 import threading
 import time
 import pprint
+import json
+
+config_file = open("config.json")
+config = json.loads(config_file.read())
+
+threads = []
 
 user_name = input("Please input your name: ") 
 #user_name = "Mike"
@@ -30,17 +36,20 @@ def main(stdscr):
         
     ui.draw_ui(user_name, user_song, state.other_users, state.log, True, True, True)
     
-    sender = DataSender(state)
+    sender = DataSender(state, config)
     sender.get_state()
     sender.register_self(User(user_name, state.current_user_song, state.current_user_artist, state.current_user_playing))
 
-    receiver = DataReceiver(state)
+    receiver = DataReceiver(state, config)
+    threads.append(receiver)
     receiver.start()
     
     spotify = SpotifyWatcher(state, sender)
+    threads.append(spotify)
     spotify.start()
 
     watcher = KeyWatcher(stdscr, state, max_users)
+    threads.append(watcher)
     watcher.start()
     
     while True:
@@ -62,4 +71,6 @@ def main(stdscr):
 
 if __name__ == "__main__":
     wrapper(main)
+    for thread in threads:
+        thread.stop()
     #main(None)

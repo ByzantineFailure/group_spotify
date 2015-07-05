@@ -11,7 +11,7 @@ class SpotifyWatcher(threading.Thread):
         self.state = state
         self.data_sender = data_sender
         self.valid_os = True
-        self._stop = False
+        self.__stop = False
         
         if "darwin" in current_os:
             self.scraper = AppleSpotifyScraper(self.state.current_user_name, self.state.current_user_song, self.state.current_user_artist)
@@ -25,14 +25,14 @@ class SpotifyWatcher(threading.Thread):
         threading.Thread.__init__(self)
 
     def stop(self):
-        self._stop = True
+        self.__stop = True
 
     def run(self):
         if not self.valid_os:
             return
 
         while True:
-            if self._stop:
+            if self.__stop:
                 return
             user_update = self.scraper.scrape()
             

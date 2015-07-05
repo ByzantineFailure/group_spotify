@@ -23,11 +23,17 @@ class KeyWatcher(threading.Thread):
     def __init__(self, stdscr, state, other_users_max_length):
         self.stdscr = stdscr
         self.state = state
+        self.__stop = False
         self.other_users_max_length = other_users_max_length
         threading.Thread.__init__(self)
     
+    def stop():
+        self.__stop = True
+
     def run(self):
         while True:
+            if(self.__stop):
+                return
             input = self.stdscr.getch()
             if input == curses.KEY_UP:
                 decrement_user_start_index(self.state)
