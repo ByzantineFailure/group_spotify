@@ -120,7 +120,7 @@ class WindowsSpotifyScraper:
         else:
             spl = result.split("-")
             print(spl)
-            return User(self.user_name, spl[0].strip(), spl[1].strip(), True)
+            return User(self.user_name, spl[0].strip(), "-".join(spl[1:]).strip(), True)
 
 class DummyScraper:
     def __init__(self, user_name):
