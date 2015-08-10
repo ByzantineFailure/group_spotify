@@ -1,0 +1,51 @@
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+    </head>
+    <body>
+        <div id="knockout-body">
+            <table>
+                <thead>
+                    <tr>
+                        <th>User Name</th>
+                        <th>Artist</th>
+                        <th>Song</th>
+                        <th>Playing</th>
+                    </tr>
+                <thead>
+                <tbody data-bind="foreach: users">
+                    <tr>
+                        <td data-bind="text: name"></td>
+                        <td data-bind="text: artist"></td>
+                        <td data-bind="text: song"></td>
+                        <td data-bind="text: playing"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <script type="text/javascript">
+            var viewmodel = {
+                users: ko.observableArray()
+            };
+            var performRequest = function() {
+                var request = new XMLHttpRequest();
+                request.onreadystatechange = function() {
+                    if (request.readyState === 4) {
+                        if(request.status === 200) {
+                            var data = JSON.parse(request.responseText);
+                            viewmodel.users.removeAll();
+                            data.forEach(function(user) {
+                                viewmodel.users.push(user);
+                            });
+                        }
+                    }
+                }
+                request.open('GET', 'http://localhost:9000/state');
+                request.send();
+                window.setTimeout(performRequest, 5000);
+            };
+            ko.applyBindings(viewmodel);
+            performRequest();
+        </script>
+    </body>
+</html>

@@ -4,6 +4,7 @@ from key_watcher import KeyWatcher
 from network import DataSender, DataReceiver
 from common import User, ApplicationState
 from spotify_watcher import SpotifyWatcher
+import sys
 import threading
 import time
 import pprint
@@ -19,7 +20,7 @@ if "user_name" in config:
 else:
     user_name = input("Please input your name: ") 
 
-#user_name = "Mike"
+ui_supported = sys.platform != "win32"
 
 def other_users_slice_length(other_users, max_users_height):
     users_length = len(other_users)
@@ -29,7 +30,7 @@ def other_users_slice_length(other_users, max_users_height):
     else:
         return max_users_height
 
-def main(stdscr):
+def ui_main(stdscr):
     user_song = "THE THING"
     ui = CurseUI(stdscr)
     log_max = ui.get_log_height()
@@ -70,11 +71,28 @@ def main(stdscr):
         state.reset_update_variables()
 
         state.lock.release()
-        #print(state.__dict__)
-        #input("")
+
+def no_ui_main():
+    print("Windows does not support the ui.  Please query {}:{}/web_ui for a web interface.".format(config["server"], config["port"]));
+    state = ApplicationState(user_name, 50)
+    
+    sender = DataSender(state, config)
+    sender.get_state()
+    sender.register_self(User(user_name, state.current_user_song, state.current_user_artist, state.current_user_playing))
+    
+    spotify = SpotifyWatcher(state, sender)
+    threads.append(spotify)
+    spotify.start()
+
+    while True:
+        time.sleep(.1)
+
 
 if __name__ == "__main__":
-    wrapper(main)
+    if ui_supported:
+        wrapper(ui_main)
+    else:
+        no_ui_main()
+
     for thread in threads:
         thread.stop()
-    #main(None)

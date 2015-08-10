@@ -4,8 +4,11 @@ import tornado.ioloop
 import tornado.httpserver
 import json
 
+config = json.loads(open('config.json').read())
+
 user_state = []
 clients = []
+web_ui = open('web_ui.html').read().replace('http://localhost:9000', "{}:{}".format(config['host'], config['port']))
 
 def update_user(mdict):
     remove_user = [u for u in user_state if u['name'] == mdict['user']['name']][0]
@@ -65,13 +68,18 @@ class RegisterHandler(tornado.web.RequestHandler):
         for client in [c for c in clients if c['name'] != mdict['name']]:
             client['socket'].write_message(json.dumps(update_dict))
 
+class WebUIHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(web_ui)
+
 class Server(tornado.web.Application):
     def __init__(self):
         handlers = [
             (r'/websocket', WebSocketHandler),
             (r'/state', StateHandler),
             (r'/register', RegisterHandler),
-            (r'/update', UpdateHandler)
+            (r'/update', UpdateHandler),
+            (r'/web_ui', WebUIHandler)
         ]
 
         tornado.web.Application.__init__(self, handlers)
