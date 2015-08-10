@@ -70,6 +70,7 @@ class DataReceiver(threading.Thread):
         threading.Thread.__init__(self)
     
     def stop(self):
+        self.ws.close()
         self.__stop = True
 
     def run(self):
