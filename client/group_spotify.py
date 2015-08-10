@@ -14,7 +14,11 @@ config = json.loads(config_file.read())
 
 threads = []
 
-user_name = input("Please input your name: ") 
+if "user_name" in config:
+    user_name = config["user_name"]
+else:
+    user_name = input("Please input your name: ") 
+
 #user_name = "Mike"
 
 def other_users_slice_length(other_users, max_users_height):
