@@ -1,24 +1,49 @@
 <html>
     <head>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.3.0/knockout-min.js"></script>
+        <style type="text/css">
+            table { 
+                table-layout: fixed;
+            }
+            th {
+                border-bottom: 2px solid black; 
+            }
+            td {
+                padding-right: 5px;
+                padding-left: 5px;
+                padding-bottom: 10px;
+            }
+            .name {
+                width: 200px;
+            }
+            .artist {
+                width: 200px;
+            }
+            .song {
+                width: 200px;
+            }
+            .playing { 
+                width: 100px;
+            }
+        </style>
     </head>
     <body>
         <div id="knockout-body">
             <table>
                 <thead>
                     <tr>
-                        <th>User Name</th>
-                        <th>Artist</th>
-                        <th>Song</th>
-                        <th>Playing</th>
+                        <th class="name">User Name</th>
+                        <th class="artist">Artist</th>
+                        <th class="song">Song</th>
+                        <th class="playing">Playing</th>
                     </tr>
                 <thead>
                 <tbody data-bind="foreach: users">
                     <tr>
-                        <td data-bind="text: name"></td>
-                        <td data-bind="text: artist"></td>
-                        <td data-bind="text: song"></td>
-                        <td data-bind="text: playing"></td>
+                        <td class="name" data-bind="text: name"></td>
+                        <td class="artist" data-bind="text: artist"></td>
+                        <td class="song" data-bind="text: song"></td>
+                        <td class="playing" data-bind="text: playing"></td>
                     </tr>
                 </tbody>
             </table>
@@ -40,7 +65,7 @@
                         }
                     }
                 }
-                request.open('GET', 'http://localhost:9000/state');
+                request.open('GET', '%HOST_AND_PORT%/state');
                 request.send();
                 window.setTimeout(performRequest, 5000);
             };

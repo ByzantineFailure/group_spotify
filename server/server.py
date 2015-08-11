@@ -8,7 +8,7 @@ config = json.loads(open('config.json').read())
 
 user_state = []
 clients = []
-web_ui = open('web_ui.html').read().replace('http://localhost:9000', "{}:{}".format(config['host'], config['port']))
+web_ui = open('web_ui.html').read().replace('%HOST_AND_PORT%', "{}:{}".format(config['host'], config['port']))
 
 def update_user(mdict):
     remove_user = [u for u in user_state if u['name'] == mdict['user']['name']][0]
