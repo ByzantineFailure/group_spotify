@@ -1,5 +1,6 @@
 import json
 import threading
+from time import strftime
 
 def dummy_users():
     user1 = User("Bob", "Song")
@@ -95,9 +96,10 @@ class ApplicationState:
         self.update_other_users = True
 
     def add_log_entry(self, entry):
-        self.log.append(entry)
+        time_value = strftime("%H:%M:%S")
+        self.log.insert(0, "{} - {}".format(time_value, entry))
         log_length = len(self.log)
         if log_length > self.max_log_length:
-           self.log = self.log[(self.max_log_length - log_length):]
+           self.log = self.log[:self.max_log_length - 1]
         self.update_log = True
 
