@@ -50,7 +50,7 @@
         </div>
         <script type="text/javascript">
             var viewmodel = {
-                users: ko.observableArray()
+                users: ko.observableArray(),
             };
             var performRequest = function() {
                 var request = new XMLHttpRequest();
@@ -65,12 +65,12 @@
                         }
                     }
                 }
-                request.open('GET', '%HOST_AND_PORT%/state');
+                request.open('GET', 'http://%HOST_AND_PORT%/state');
                 request.send();
                 window.setTimeout(performRequest, 5000);
             };
-            ko.applyBindings(viewmodel);
             performRequest();
+            ko.applyBindings(viewmodel);
         </script>
     </body>
 </html>
