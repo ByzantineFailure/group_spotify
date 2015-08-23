@@ -1,5 +1,6 @@
 {
     "server": "localhost",
     "port": "9000",
+    "heartbeat_frequency": 15,
     "user_name": "ByzantineFailure"
 }

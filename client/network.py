@@ -2,6 +2,7 @@ import websocket
 import threading
 import urllib.request
 import json
+from time import sleep
 from common import User
 
 #websocket.enableTrace(True)
@@ -26,6 +27,16 @@ class MessageFactory:
         message = { 'type' : 'USER_DISCONNECT', 'name' : name }
         return json.dumps(message)
 
+def send_post(data, server_url, endpoint):
+    req = urllib.request.Request("{}/{}".format(server_url, endpoint))
+    if data != None:
+        post_data = json.dumps(data).encode('utf-8')
+        req.add_header('Content-Type', 'application/json;charset=utf-8')
+        req.add_header('Content-Length', len(post_data))
+        urllib.request.urlopen(req, post_data)
+    else:
+        urllib.reqest.urlopen(req)
+
 class DataSender:
     def __init__(self, state, config):
         self.state = state
@@ -33,10 +44,10 @@ class DataSender:
         print(self.server_url)
 
     def update_user(self, user):
-        self.__send_post({ "user": user.__dict__ }, self.server_url, 'update') 
+        send_post({ "user": user.__dict__ }, self.server_url, 'update') 
     
     def register_self(self, user):
-        self.__send_post(user.__dict__, self.server_url, 'register')
+        send_post(user.__dict__, self.server_url, 'register')
     
     def get_state(self):
         url = "{}/state".format(self.server_url)
@@ -50,13 +61,21 @@ class DataSender:
             self.state.add_or_modify_user(updated_user)
         self.state.lock.release()
 
-    def __send_post(self, dictionary, server_url, endpoint):
-        post_data = json.dumps(dictionary).encode('utf-8')
-        req = urllib.request.Request("{}/{}".format(self.server_url, endpoint))
-        req.add_header('Content-Type', 'application/json;charset=utf-8')
-        req.add_header('Content-Length', len(post_data))
-        urllib.request.urlopen(req, post_data)
-        
+class Heartbeat(threading.Thread):
+    def __init__(self, config, user_name):
+        self.__stop = False
+        self.server_url = "http://" + get_server_url(config['server'], config['port'])
+        self.user_name = user_name;
+        self.heartbeat_frequency = config['heartbeat_frequency'];
+        threading.Thread.__init__(self)
+
+    def run(self):
+        while True:
+            if(self.__stop):
+                return
+            send_post({ 'user': self.user_name }, self.server_url, 'heartbeat')
+            sleep(self.heartbeat_frequency)
+            
 class DataReceiver(threading.Thread):
     def __init__(self, state, config):
         self.state = state

@@ -1,7 +1,4 @@
-from curses import wrapper
-from ui import CurseUI
-from key_watcher import KeyWatcher
-from network import DataSender, DataReceiver
+from network import DataSender, DataReceiver, Heartbeat
 from common import User, ApplicationState
 from spotify_watcher import SpotifyWatcher
 import sys
@@ -9,6 +6,13 @@ import threading
 import time
 import pprint
 import json
+
+ui_supported = sys.platform != "win32"
+
+if ui_supported:
+    from curses import wrapper
+    from ui import CurseUI
+    from key_watcher import KeyWatcher
 
 config_file = open("config.json")
 config = json.loads(config_file.read())
@@ -19,8 +23,6 @@ if "user_name" in config:
     user_name = config["user_name"]
 else:
     user_name = input("Please input your name: ") 
-
-ui_supported = sys.platform != "win32"
 
 def other_users_slice_length(other_users, max_users_height):
     users_length = len(other_users)
@@ -57,6 +59,10 @@ def ui_main(stdscr):
     threads.append(watcher)
     watcher.start()
     
+    heartbeat = Heartbeat(config, user_name)
+    threads.append(heartbeat)
+    heartbeat.start()
+
     while True:
         time.sleep(.1)
         state.lock.acquire()
@@ -83,6 +89,10 @@ def no_ui_main():
     spotify = SpotifyWatcher(state, sender)
     threads.append(spotify)
     spotify.start()
+
+    heartbeat = Heartbeat(config, user_name)
+    threads.append(heartbeat)
+    heartbeat.start()
 
     while True:
         time.sleep(.1)

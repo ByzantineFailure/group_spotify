@@ -1,4 +1,6 @@
 {
     "host" : "localhost",
-    "port" : "9000"
+    "port" : "9000",
+    "heartbeat_check_interval" : 10,
+    "client_timeout" : 45
 }
